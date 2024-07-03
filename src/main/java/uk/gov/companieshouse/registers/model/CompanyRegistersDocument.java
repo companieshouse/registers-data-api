@@ -15,6 +15,7 @@ public class CompanyRegistersDocument {
 
     private Created created;
 
+    @Field("data")
     private CompanyRegister data;
 
     @Field("delta_at")

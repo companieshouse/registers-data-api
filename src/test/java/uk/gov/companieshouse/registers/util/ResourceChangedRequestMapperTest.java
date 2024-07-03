@@ -1,15 +1,20 @@
 package uk.gov.companieshouse.registers.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.internal.matchers.Any;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.api.chskafka.ChangedResourceEvent;
@@ -25,14 +30,21 @@ class ResourceChangedRequestMapperTest {
     @Mock
     private Supplier<String> timestampGenerator;
 
+    @Mock
+    private ObjectMapper objectMapper;
+
     @InjectMocks
     private ResourceChangedRequestMapper mapper;
 
     @ParameterizedTest
     @MethodSource("resourceChangedScenarios")
-    void testMapper(ResourceChangedTestArgument argument) {
+    void testMapper(ResourceChangedTestArgument argument) throws JsonProcessingException {
         // given
         when(timestampGenerator.get()).thenReturn(DATE);
+        if (argument.request().isDelete() != null && argument.request().isDelete()) {
+            when(objectMapper.writeValueAsString(any())).thenReturn("{mapped_deleted_data_mock}");
+            when(objectMapper.readValue("{mapped_deleted_data_mock}", Object.class)).thenReturn(argument.request().registersData());
+        }
 
         // when
         ChangedResource actual = mapper.mapChangedResource(argument.request());

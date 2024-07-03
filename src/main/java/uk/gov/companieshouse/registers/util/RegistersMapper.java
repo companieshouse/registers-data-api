@@ -2,9 +2,7 @@ package uk.gov.companieshouse.registers.util;
 
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.GenerateEtagUtil;
-import uk.gov.companieshouse.api.registers.LinksType;
-import uk.gov.companieshouse.api.registers.CompanyRegister;
-import uk.gov.companieshouse.api.registers.InternalRegisters;
+import uk.gov.companieshouse.api.registers.*;
 import uk.gov.companieshouse.registers.model.CompanyRegistersDocument;
 import uk.gov.companieshouse.registers.model.Updated;
 

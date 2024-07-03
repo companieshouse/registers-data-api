@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.companieshouse.api.model.registers.CompanyRegistersApi;
 import uk.gov.companieshouse.api.registers.CompanyRegister;
 import uk.gov.companieshouse.api.registers.InternalRegisters;
 import uk.gov.companieshouse.registers.model.CompanyRegistersDocument;
@@ -37,25 +36,9 @@ public class RegistersController {
 
         Optional<CompanyRegistersDocument> document = service.getCompanyRegisters(companyNumber);
 
-        if (document.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+        return document.map(companyRegistersDocument -> ResponseEntity.ok().body(companyRegistersDocument.getData())).
+                orElseGet(() -> ResponseEntity.notFound().build());
 
-        CompanyRegistersDocument registersDocument = document.get();
-        logger.info(String.format("Got company registers for company number %s, registersDocument=[%s]", companyNumber,
-                registersDocument));
-
-        CompanyRegister registerData = registersDocument.getData();
-        logger.info(String.format("Got company registers for company number %s, registerData=[%s]", companyNumber,
-                registerData));
-
-        CompanyRegister registerApiResponse = new CompanyRegister().etag(registerData.getEtag()).
-                registers(registerData.getRegisters()).companyNumber(registerData.getCompanyNumber()).
-                links(registerData.getLinks()).kind(registerData.getKind());
-        logger.info(String.format("Got company registers for company number %s, registerApiResponse=[%s]", companyNumber,
-                registerApiResponse));
-
-        return ResponseEntity.ok().body(registerApiResponse);
     }
 
     @PutMapping("/company/{company_number}/registers")

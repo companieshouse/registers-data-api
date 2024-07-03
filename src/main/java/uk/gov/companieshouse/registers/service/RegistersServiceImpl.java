@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import uk.gov.companieshouse.api.registers.CompanyRegister;
 import uk.gov.companieshouse.api.registers.InternalRegisters;
 import uk.gov.companieshouse.registers.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.registers.model.CompanyRegistersDocument;
@@ -91,29 +90,14 @@ public class RegistersServiceImpl implements RegistersService {
     @Override
     public ServiceStatus deleteCompanyRegisters(String contextId, String companyNumber) {
         try {
-            Optional<CompanyRegistersDocument> document = repository.findById(companyNumber);
+            Optional<CompanyRegistersDocument> document = getCompanyRegisters(companyNumber);
             if (document.isEmpty()) {
                 logger.error(String.format("Company registers do not exist for company number %s", companyNumber));
                 return ServiceStatus.CLIENT_ERROR;
             }
 
-            CompanyRegistersDocument registersDocument = document.get();
-            logger.info(String.format("BEFORE DELETE Got company registers for company number %s, registersDocument=[%s]", companyNumber,
-                    registersDocument));
-
-            CompanyRegister registerData = registersDocument.getData();
-            logger.info(String.format("BEFORE DELETE Got company registers for company number %s, registerData=[%s]", companyNumber,
-                    registerData));
-
-            CompanyRegister registerApiResponse = new CompanyRegister().etag(registerData.getEtag()).
-                    registers(registerData.getRegisters()).companyNumber(registerData.getCompanyNumber()).
-                    links(registerData.getLinks()).kind(registerData.getKind());
-            logger.info(String.format("BEFORE DELETE Got company registers for company number %s, registerApiResponse=[%s]", companyNumber,
-                    registerApiResponse));
-
-
             ServiceStatus serviceStatus = registersApiService.invokeChsKafkaApi(
-                    new ResourceChangedRequest(contextId, companyNumber, registerApiResponse, true));
+                    new ResourceChangedRequest(contextId, companyNumber, document.get().getData(), true));
             logger.info(String.format("ChsKafka api DELETED invoked successfully for context id: %s and company number: %s", contextId, companyNumber));
 
             if (ServiceStatus.SUCCESS.equals(serviceStatus)) {
