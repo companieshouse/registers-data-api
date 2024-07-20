@@ -8,7 +8,7 @@ locals {
   eric_port                  = "10000"
   docker_repo                = "registers-data-api"
   kms_alias                  = "alias/${var.aws_profile}/environment-services-kms"
-  lb_listener_rule_priority  = 52
+  lb_listener_rule_priority  = 53
   lb_listener_paths          = ["/company/*/registers"]
   healthcheck_path           = "/healthcheck"
   healthcheck_matcher        = "200"
