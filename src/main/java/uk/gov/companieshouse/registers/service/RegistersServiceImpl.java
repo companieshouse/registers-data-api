@@ -44,7 +44,7 @@ public class RegistersServiceImpl implements RegistersService {
                     requestBody.getInternalData().getDeltaAt()
                             .isAfter(ZonedDateTime.parse(existingDocument.get().getDeltaAt(), FORMATTER)
                                     .toOffsetDateTime())) {
-                CompanyRegistersDocument document = mapper.map(companyNumber, requestBody);
+                CompanyRegistersDocument document = mapper.map(companyNumber, existingDocument.orElse(null), requestBody);
 
                 // If a document already exists and it has a created field, then reuse it
                 // otherwise, set it to the delta's updated_at field

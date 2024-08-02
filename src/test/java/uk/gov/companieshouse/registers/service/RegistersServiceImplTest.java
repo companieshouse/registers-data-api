@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.registers.CompanyRegister;
 import uk.gov.companieshouse.api.registers.InternalData;
 import uk.gov.companieshouse.api.registers.InternalRegisters;
+import uk.gov.companieshouse.api.registers.Registers;
 import uk.gov.companieshouse.registers.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.registers.model.*;
 import uk.gov.companieshouse.registers.util.RegistersMapper;
@@ -72,13 +73,14 @@ class RegistersServiceImplTest {
         document.setDeltaAt(dateString);
         existingDocument = new CompanyRegistersDocument();
         existingDocument.setDeltaAt("20221012091025774312");
+        existingDocument.setData(new CompanyRegister().registers(new Registers()));
     }
 
     @Test
     @DisplayName("Test successful insert and call to chs kafka api")
     void insertCompanyRegisters() {
         when(repository.findById(COMPANY_NUMBER)).thenReturn(Optional.empty());
-        when(mapper.map(COMPANY_NUMBER, requestBody)).thenReturn(document);
+        when(mapper.map(COMPANY_NUMBER, null, requestBody)).thenReturn(document);
         when(registersApiService.invokeChsKafkaApi(any())).thenReturn(ServiceStatus.SUCCESS);
 
         ServiceStatus serviceStatus = service.upsertCompanyRegisters("", COMPANY_NUMBER, requestBody);
@@ -94,7 +96,7 @@ class RegistersServiceImplTest {
     void updateCompanyRegisters() {
         existingDocument.setCreated(new Created().setAt(LocalDateTime.of(2022, 11, 2, 15, 55)));
         when(repository.findById(COMPANY_NUMBER)).thenReturn(Optional.of(existingDocument));
-        when(mapper.map(COMPANY_NUMBER, requestBody)).thenReturn(document);
+        when(mapper.map(COMPANY_NUMBER, existingDocument, requestBody)).thenReturn(document);
         when(registersApiService.invokeChsKafkaApi(any())).thenReturn(ServiceStatus.SUCCESS);
 
         ServiceStatus serviceStatus = service.upsertCompanyRegisters("", COMPANY_NUMBER, requestBody);
@@ -123,7 +125,7 @@ class RegistersServiceImplTest {
         existingDocument.setDeltaAt(null);
         existingDocument.setCreated(new Created().setAt(LocalDateTime.of(2022, 11, 2, 15, 55)));
         when(repository.findById(COMPANY_NUMBER)).thenReturn(Optional.of(existingDocument));
-        when(mapper.map(COMPANY_NUMBER, requestBody)).thenReturn(document);
+        when(mapper.map(COMPANY_NUMBER, existingDocument, requestBody)).thenReturn(document);
         when(registersApiService.invokeChsKafkaApi(any())).thenReturn(ServiceStatus.SUCCESS);
 
         ServiceStatus serviceStatus = service.upsertCompanyRegisters("", COMPANY_NUMBER, requestBody);
@@ -150,7 +152,7 @@ class RegistersServiceImplTest {
     @DisplayName("Test should return status server error when save to repository throws data access exception")
     void saveToRepositoryError() {
         when(repository.findById(COMPANY_NUMBER)).thenReturn(Optional.empty());
-        when(mapper.map(COMPANY_NUMBER, requestBody)).thenReturn(document);
+        when(mapper.map(COMPANY_NUMBER, null, requestBody)).thenReturn(document);
         when(registersApiService.invokeChsKafkaApi(any())).thenReturn(ServiceStatus.SUCCESS);
         when(repository.save(document)).thenThrow(ServiceUnavailableException.class);
 
@@ -166,7 +168,7 @@ class RegistersServiceImplTest {
     void updateCompanyRegistersServerError() {
         // given
         when(repository.findById(COMPANY_NUMBER)).thenReturn(Optional.empty());
-        when(mapper.map(COMPANY_NUMBER, requestBody)).thenReturn(document);
+        when(mapper.map(COMPANY_NUMBER, null, requestBody)).thenReturn(document);
         when(registersApiService.invokeChsKafkaApi(any())).thenReturn(ServiceStatus.SERVER_ERROR);
 
         // when
@@ -183,8 +185,8 @@ class RegistersServiceImplTest {
     @DisplayName("Test call to upsert company registers when chs-kafka-api unavailable throws illegal arg exception")
     void updateCompanyRegistersIllegalArg() {
         // given
-        when(repository.findById(COMPANY_NUMBER)).thenReturn(Optional.empty());
-        when(mapper.map(COMPANY_NUMBER, requestBody)).thenReturn(document);
+        when(repository.findById(COMPANY_NUMBER)).thenReturn(Optional.of(existingDocument));
+        when(mapper.map(COMPANY_NUMBER, existingDocument, requestBody)).thenReturn(document);
         when(registersApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
 
         // when
