@@ -153,14 +153,13 @@ class RegistersServiceImplTest {
     void saveToRepositoryError() {
         when(repository.findById(COMPANY_NUMBER)).thenReturn(Optional.empty());
         when(mapper.map(COMPANY_NUMBER, null, requestBody)).thenReturn(document);
-        when(registersApiService.invokeChsKafkaApi(any())).thenReturn(ServiceStatus.SUCCESS);
         when(repository.save(document)).thenThrow(ServiceUnavailableException.class);
 
         ServiceStatus serviceStatus = service.upsertCompanyRegisters("", COMPANY_NUMBER, requestBody);
 
         assertEquals(ServiceStatus.SERVER_ERROR, serviceStatus);
-        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest("", COMPANY_NUMBER, null, false));
         verify(repository).save(document);
+        verifyNoInteractions(registersApiService);
     }
 
     @Test
@@ -169,7 +168,7 @@ class RegistersServiceImplTest {
         // given
         when(repository.findById(COMPANY_NUMBER)).thenReturn(Optional.empty());
         when(mapper.map(COMPANY_NUMBER, null, requestBody)).thenReturn(document);
-        when(registersApiService.invokeChsKafkaApi(any())).thenReturn(ServiceStatus.SERVER_ERROR);
+        when(repository.save(document)).thenThrow(ServiceUnavailableException.class);
 
         // when
         ServiceStatus actual = service.upsertCompanyRegisters("", COMPANY_NUMBER, requestBody);
@@ -177,8 +176,7 @@ class RegistersServiceImplTest {
         // then
         assertEquals(ServiceStatus.SERVER_ERROR, actual);
         verify(repository).findById(COMPANY_NUMBER);
-        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest("", COMPANY_NUMBER, null, false));
-        verifyNoMoreInteractions(repository);
+        verifyNoInteractions(registersApiService);
     }
 
     @Test
@@ -195,8 +193,8 @@ class RegistersServiceImplTest {
         // then
         assertEquals(ServiceStatus.SERVER_ERROR, actual);
         verify(repository).findById(COMPANY_NUMBER);
+        verify(repository).save(document);
         verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest("", COMPANY_NUMBER, null, false));
-        verifyNoMoreInteractions(repository);
     }
 
     @Test
