@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>uk.gov.companieshouse</groupId>
 		<artifactId>companies-house-parent</artifactId>
-		<version>2.1.5</version>
+		<version>2.1.6</version>
 	</parent>
 	<artifactId>registers-data-api</artifactId>
 	<version>unversioned</version>
@@ -39,8 +39,6 @@
 		<api-helper-java-library.version>3.0.1</api-helper-java-library.version>
         <api-security-java.version>2.0.5</api-security-java.version>
 
-		<!-- OWASP dependency checker -->
-		<dependency-check-plugin.version>9.1.0</dependency-check-plugin.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -381,26 +379,6 @@
 								<source>src/feature/java</source>
 							</sources>
 						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.owasp</groupId>
-				<artifactId>dependency-check-maven</artifactId>
-				<version>${dependency-check-plugin.version}</version>
-				<configuration>
-					<formats>
-						<format>html</format>
-					</formats>
-					<suppressionFiles>
-						<suppressionFile>suppress.xml</suppressionFile>
-					</suppressionFiles>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>check</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>
