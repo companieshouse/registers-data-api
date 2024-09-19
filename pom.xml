@@ -19,6 +19,7 @@
 		<spring-boot-maven-plugin.version>3.2.4</spring-boot-maven-plugin.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<spring-web.version>6.1.12</spring-web.version>
 
 		<!-- tests -->
 		<maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
@@ -81,6 +82,18 @@
 	</dependencyManagement>
 	<dependencies>
 		<dependency>
+			<!-- Overriding spring-web version to remove vulnerability -->
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring-web.version}</version>
+		</dependency>
+		<dependency>
+			<!-- Overriding spring-webmvc version to remove vulnerability -->
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${spring-web.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
 			<version>1.14.13</version>
@@ -125,12 +138,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-		<dependency>
-<!--			Overriding spring-web version to remove vulnerability-->
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
-			<version>6.1.6</version>
 		</dependency>
 		<dependency>
 			<groupId>uk.gov.companieshouse</groupId>
