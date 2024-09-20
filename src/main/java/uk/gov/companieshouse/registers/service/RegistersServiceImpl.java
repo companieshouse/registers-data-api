@@ -43,9 +43,9 @@ public class RegistersServiceImpl implements RegistersService {
                     StringUtils.isBlank(existingDocument.get().getDeltaAt()) ||
                     // use compareTo >= 0 instead of isAfter to allow the same delta to be re-run to ensure the stream
                     // always gets updated by a retry if any call to /resource-changed fails the delta
-                    requestBody.getInternalData().getDeltaAt()
-                            .compareTo(ZonedDateTime.parse(existingDocument.get().getDeltaAt(), FORMATTER)
-                                    .toOffsetDateTime()) >= 0) {
+                    !requestBody.getInternalData().getDeltaAt()
+                            .isBefore(ZonedDateTime.parse(existingDocument.get().getDeltaAt(), FORMATTER)
+                                    .toOffsetDateTime())) {
                 CompanyRegistersDocument document = mapper.map(companyNumber, existingDocument.orElse(null), requestBody);
 
                 // If a document already exists and it has a created field, then reuse it
