@@ -1,21 +1,27 @@
 package uk.gov.companieshouse.registers.service;
 
+
+import static uk.gov.companieshouse.registers.RegistersApplication.NAMESPACE;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.chskafka.request.PrivateChangedResourcePost;
-import uk.gov.companieshouse.registers.model.ResourceChangedRequest;
-import uk.gov.companieshouse.registers.util.ResourceChangedRequestMapper;
-import uk.gov.companieshouse.registers.model.ServiceStatus;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.logging.LoggerFactory;
+import uk.gov.companieshouse.registers.logging.DataMapHolder;
+import uk.gov.companieshouse.registers.model.ResourceChangedRequest;
+import uk.gov.companieshouse.registers.model.ServiceStatus;
+import uk.gov.companieshouse.registers.util.ResourceChangedRequestMapper;
 
 @Service
 public class RegistersApiService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(NAMESPACE);
     private static final String CHANGED_RESOURCE_URI = "/private/resource-changed";
-    private final Logger logger;
+
     private final String chsKafkaUrl;
     private final ApiClientService apiClientService;
     private final ResourceChangedRequestMapper mapper;
@@ -24,24 +30,23 @@ public class RegistersApiService {
      * Invoke API.
      */
     public RegistersApiService(@Value("${chs.kafka.api.endpoint}") String chsKafkaUrl,
-                               ApiClientService apiClientService,
-                               Logger logger,
-                               ResourceChangedRequestMapper mapper) {
+            ApiClientService apiClientService,
+            ResourceChangedRequestMapper mapper) {
         this.chsKafkaUrl = chsKafkaUrl;
         this.apiClientService = apiClientService;
-        this.logger = logger;
         this.mapper = mapper;
     }
 
-
     /**
      * Calls the CHS Kafka api.
+     *
      * @param resourceChangedRequest encapsulates details relating to the updated or deleted company registers resource
      * @return The service status of the response from chs kafka api
      */
     public ServiceStatus invokeChsKafkaApi(ResourceChangedRequest resourceChangedRequest) {
         InternalApiClient internalApiClient = apiClientService.getInternalApiClient();
         internalApiClient.setBasePath(chsKafkaUrl);
+        internalApiClient.getHttpClient().setRequestId(DataMapHolder.getRequestId());
 
         PrivateChangedResourcePost changedResourcePost =
                 internalApiClient.privateChangedResourceHandler().postChangedResource(
@@ -56,9 +61,9 @@ public class RegistersApiService {
             return ServiceStatus.SUCCESS;
         } catch (ApiErrorResponseException ex) {
             if (!HttpStatus.valueOf(ex.getStatusCode()).is2xxSuccessful()) {
-                logger.error("Unsuccessful call to /private/resource-changed endpoint", ex);
+                LOGGER.error("Unsuccessful call to resource changed", ex, DataMapHolder.getLogMap());
             } else {
-                logger.error("Error occurred while calling /private/resource-changed endpoint", ex);
+                LOGGER.error("Error occurred while calling resource changed", ex, DataMapHolder.getLogMap());
             }
             return ServiceStatus.SERVER_ERROR;
         }

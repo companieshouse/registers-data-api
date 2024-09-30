@@ -4,37 +4,44 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Instant;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.matchers.Any;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.api.chskafka.ChangedResourceEvent;
 import uk.gov.companieshouse.api.registers.CompanyRegister;
+import uk.gov.companieshouse.registers.logging.DataMapHolder;
 import uk.gov.companieshouse.registers.model.ResourceChangedRequest;
 
 @ExtendWith(MockitoExtension.class)
 class ResourceChangedRequestMapperTest {
 
     private static final String EXPECTED_CONTEXT_ID = "35234234";
-    private static final String DATE = "date";
+    private static final Instant DATE = Instant.parse("2024-09-30T12:00:00.123456Z");
+    private static final String DATE_STRING = "2024-09-30T12:00:00";
 
     @Mock
-    private Supplier<String> timestampGenerator;
+    private Supplier<Instant> timestampGenerator;
 
     @Mock
     private ObjectMapper objectMapper;
 
     @InjectMocks
     private ResourceChangedRequestMapper mapper;
+
+    @BeforeEach
+    void setUp() {
+        DataMapHolder.initialise(EXPECTED_CONTEXT_ID);
+    }
 
     @ParameterizedTest
     @MethodSource("resourceChangedScenarios")
@@ -56,29 +63,29 @@ class ResourceChangedRequestMapperTest {
     static Stream<ResourceChangedTestArgument> resourceChangedScenarios() {
         return Stream.of(
                 ResourceChangedTestArgument.builder()
-                        .withRequest(new ResourceChangedRequest(EXPECTED_CONTEXT_ID, "12345678", null, false))
+                        .withRequest(new ResourceChangedRequest("12345678", null, false))
                         .withContextId(EXPECTED_CONTEXT_ID)
                         .withResourceUri("company/12345678/registers")
                         .withResourceKind("registers")
                         .withEventType("changed")
-                        .withEventPublishedAt(DATE)
+                        .withEventPublishedAt(DATE_STRING)
                         .build(),
                 ResourceChangedTestArgument.builder()
-                        .withRequest(new ResourceChangedRequest(EXPECTED_CONTEXT_ID, "12345678", null, null))
+                        .withRequest(new ResourceChangedRequest("12345678", null, null))
                         .withContextId(EXPECTED_CONTEXT_ID)
                         .withResourceUri("company/12345678/registers")
                         .withResourceKind("registers")
                         .withEventType("changed")
-                        .withEventPublishedAt(DATE)
+                        .withEventPublishedAt(DATE_STRING)
                         .build(),
                 ResourceChangedTestArgument.builder()
-                        .withRequest(new ResourceChangedRequest(EXPECTED_CONTEXT_ID, "12345678", new CompanyRegister(), true))
+                        .withRequest(new ResourceChangedRequest("12345678", new CompanyRegister(), true))
                         .withContextId(EXPECTED_CONTEXT_ID)
                         .withResourceUri("company/12345678/registers")
                         .withResourceKind("registers")
                         .withEventType("deleted")
                         .withDeletedData(new CompanyRegister())
-                        .withEventPublishedAt(DATE)
+                        .withEventPublishedAt(DATE_STRING)
                         .build()
         );
     }

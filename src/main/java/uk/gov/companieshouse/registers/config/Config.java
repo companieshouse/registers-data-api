@@ -5,34 +5,27 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.function.Supplier;
-
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
-import uk.gov.companieshouse.registers.util.*;
-import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.logging.LoggerFactory;
-
-import static uk.gov.companieshouse.registers.RegistersApplication.APPLICATION_NAME_SPACE;
+import uk.gov.companieshouse.registers.util.EmptyFieldDeserializer;
+import uk.gov.companieshouse.registers.util.LocalDateDeSerializer;
+import uk.gov.companieshouse.registers.util.LocalDateSerializer;
+import uk.gov.companieshouse.registers.util.RegistersReadConverter;
+import uk.gov.companieshouse.registers.util.RegistersWriteConverter;
 
 @Configuration
 public class Config {
 
     @Bean
-    public Logger logger() {
-        return LoggerFactory.getLogger(APPLICATION_NAME_SPACE);
-    }
-
-    @Bean
-    public Supplier<String> offsetDateTimeGenerator() {
-        return () -> String.valueOf(OffsetDateTime.now());
+    public Supplier<Instant> instantSupplier() {
+        return Instant::now;
     }
 
     /**
@@ -43,7 +36,8 @@ public class Config {
     @Bean
     public MongoCustomConversions mongoCustomConversions() {
         ObjectMapper objectMapper = mongoDbObjectMapper();
-        return new MongoCustomConversions(List.of(new RegistersWriteConverter(objectMapper), new RegistersReadConverter(objectMapper)));
+        return new MongoCustomConversions(
+                List.of(new RegistersWriteConverter(objectMapper), new RegistersReadConverter(objectMapper)));
     }
 
     /**

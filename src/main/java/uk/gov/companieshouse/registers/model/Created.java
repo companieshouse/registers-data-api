@@ -1,9 +1,8 @@
 package uk.gov.companieshouse.registers.model;
 
+import java.time.LocalDateTime;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
 
 public class Created {
     @Field("updated_at")

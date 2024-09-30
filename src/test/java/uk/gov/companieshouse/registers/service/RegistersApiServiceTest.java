@@ -20,11 +20,11 @@ import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.chskafka.PrivateChangedResourceHandler;
 import uk.gov.companieshouse.api.handler.chskafka.request.PrivateChangedResourcePost;
+import uk.gov.companieshouse.api.http.HttpClient;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.registers.model.ResourceChangedRequest;
 import uk.gov.companieshouse.registers.model.ServiceStatus;
 import uk.gov.companieshouse.registers.util.ResourceChangedRequestMapper;
-import uk.gov.companieshouse.logging.Logger;
 
 @ExtendWith(MockitoExtension.class)
 class RegistersApiServiceTest {
@@ -36,6 +36,9 @@ class RegistersApiServiceTest {
     private InternalApiClient internalApiClient;
 
     @Mock
+    private HttpClient httpClient;
+
+    @Mock
     private PrivateChangedResourceHandler privateChangedResourceHandler;
 
     @Mock
@@ -43,9 +46,6 @@ class RegistersApiServiceTest {
 
     @Mock
     private ApiResponse<Void> response;
-
-    @Mock
-    private Logger logger;
 
     @Mock
     private Supplier<String> dateGenerator;
@@ -66,6 +66,7 @@ class RegistersApiServiceTest {
     @DisplayName("Test should successfully invoke chs-kafka-api")
     void invokeChsKafkaApi() throws ApiErrorResponseException {
         when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.getHttpClient()).thenReturn(httpClient);
         when(internalApiClient.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
         when(privateChangedResourceHandler.postChangedResource(any(), any())).thenReturn(changedResourcePost);
         when(changedResourcePost.execute()).thenReturn(response);
@@ -116,6 +117,7 @@ class RegistersApiServiceTest {
 
     private void setupExceptionScenario(int statusCode, String statusMessage) throws ApiErrorResponseException {
         when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.getHttpClient()).thenReturn(httpClient);
         when(internalApiClient.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
         when(privateChangedResourceHandler.postChangedResource(any(), any())).thenReturn(changedResourcePost);
         when(mapper.mapChangedResource(resourceChangedRequest)).thenReturn(changedResource);

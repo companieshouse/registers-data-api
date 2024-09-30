@@ -1,6 +1,21 @@
 package uk.gov.companieshouse.registers.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,25 +29,12 @@ import uk.gov.companieshouse.api.registers.InternalData;
 import uk.gov.companieshouse.api.registers.InternalRegisters;
 import uk.gov.companieshouse.api.registers.Registers;
 import uk.gov.companieshouse.registers.exception.ServiceUnavailableException;
-import uk.gov.companieshouse.registers.model.*;
+import uk.gov.companieshouse.registers.model.CompanyRegistersDocument;
+import uk.gov.companieshouse.registers.model.Created;
+import uk.gov.companieshouse.registers.model.ResourceChangedRequest;
+import uk.gov.companieshouse.registers.model.ServiceStatus;
+import uk.gov.companieshouse.registers.model.Updated;
 import uk.gov.companieshouse.registers.util.RegistersMapper;
-import uk.gov.companieshouse.logging.Logger;
-
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RegistersServiceImplTest {
@@ -47,9 +49,6 @@ class RegistersServiceImplTest {
 
     @Mock
     private RegistersApiService registersApiService;
-
-    @Mock
-    private Logger logger;
 
     @InjectMocks
     private RegistersServiceImpl service;
@@ -83,11 +82,11 @@ class RegistersServiceImplTest {
         when(mapper.map(COMPANY_NUMBER, null, requestBody)).thenReturn(document);
         when(registersApiService.invokeChsKafkaApi(any())).thenReturn(ServiceStatus.SUCCESS);
 
-        ServiceStatus serviceStatus = service.upsertCompanyRegisters("", COMPANY_NUMBER, requestBody);
+        ServiceStatus serviceStatus = service.upsertCompanyRegisters(COMPANY_NUMBER, requestBody);
 
         assertEquals(ServiceStatus.SUCCESS, serviceStatus);
         assertNotNull(document.getCreated().getAt());
-        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest("", COMPANY_NUMBER, null, false));
+        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest(COMPANY_NUMBER, null, false));
         verify(repository).save(document);
     }
 
@@ -99,11 +98,11 @@ class RegistersServiceImplTest {
         when(mapper.map(COMPANY_NUMBER, existingDocument, requestBody)).thenReturn(document);
         when(registersApiService.invokeChsKafkaApi(any())).thenReturn(ServiceStatus.SUCCESS);
 
-        ServiceStatus serviceStatus = service.upsertCompanyRegisters("", COMPANY_NUMBER, requestBody);
+        ServiceStatus serviceStatus = service.upsertCompanyRegisters(COMPANY_NUMBER, requestBody);
 
         assertEquals(ServiceStatus.SUCCESS, serviceStatus);
         assertEquals(LocalDateTime.of(2022, 11, 2, 15, 55), document.getCreated().getAt());
-        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest("", COMPANY_NUMBER, null, false));
+        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest(COMPANY_NUMBER, null, false));
         verify(repository).save(document);
     }
 
@@ -112,7 +111,7 @@ class RegistersServiceImplTest {
     void outOfDateDelta() {
         requestBody.getInternalData().setDeltaAt(OffsetDateTime.of(2018,1,1,0,0,0,0,ZoneOffset.UTC));
         when(repository.findById(any())).thenReturn(Optional.of(existingDocument));
-        ServiceStatus serviceStatus = service.upsertCompanyRegisters("", COMPANY_NUMBER, requestBody);
+        ServiceStatus serviceStatus = service.upsertCompanyRegisters(COMPANY_NUMBER, requestBody);
 
         assertEquals(ServiceStatus.CLIENT_ERROR, serviceStatus);
         verifyNoInteractions(registersApiService);
@@ -128,11 +127,11 @@ class RegistersServiceImplTest {
         when(mapper.map(COMPANY_NUMBER, existingDocument, requestBody)).thenReturn(document);
         when(registersApiService.invokeChsKafkaApi(any())).thenReturn(ServiceStatus.SUCCESS);
 
-        ServiceStatus serviceStatus = service.upsertCompanyRegisters("", COMPANY_NUMBER, requestBody);
+        ServiceStatus serviceStatus = service.upsertCompanyRegisters(COMPANY_NUMBER, requestBody);
 
         assertEquals(ServiceStatus.SUCCESS, serviceStatus);
         assertEquals(LocalDateTime.of(2022, 11, 2, 15, 55), document.getCreated().getAt());
-        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest("", COMPANY_NUMBER, null, false));
+        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest(COMPANY_NUMBER, null, false));
         verify(repository).save(document);
     }
 
@@ -141,7 +140,7 @@ class RegistersServiceImplTest {
     void saveToRepositoryFindError() {
         when(repository.findById(COMPANY_NUMBER)).thenThrow(ServiceUnavailableException.class);
 
-        ServiceStatus serviceStatus = service.upsertCompanyRegisters("", COMPANY_NUMBER, requestBody);
+        ServiceStatus serviceStatus = service.upsertCompanyRegisters(COMPANY_NUMBER, requestBody);
 
         assertEquals(ServiceStatus.SERVER_ERROR, serviceStatus);
         verifyNoInteractions(registersApiService);
@@ -155,7 +154,7 @@ class RegistersServiceImplTest {
         when(mapper.map(COMPANY_NUMBER, null, requestBody)).thenReturn(document);
         when(repository.save(document)).thenThrow(ServiceUnavailableException.class);
 
-        ServiceStatus serviceStatus = service.upsertCompanyRegisters("", COMPANY_NUMBER, requestBody);
+        ServiceStatus serviceStatus = service.upsertCompanyRegisters(COMPANY_NUMBER, requestBody);
 
         assertEquals(ServiceStatus.SERVER_ERROR, serviceStatus);
         verify(repository).save(document);
@@ -171,7 +170,7 @@ class RegistersServiceImplTest {
         when(repository.save(document)).thenThrow(ServiceUnavailableException.class);
 
         // when
-        ServiceStatus actual = service.upsertCompanyRegisters("", COMPANY_NUMBER, requestBody);
+        ServiceStatus actual = service.upsertCompanyRegisters(COMPANY_NUMBER, requestBody);
 
         // then
         assertEquals(ServiceStatus.SERVER_ERROR, actual);
@@ -188,13 +187,13 @@ class RegistersServiceImplTest {
         when(registersApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
 
         // when
-        ServiceStatus actual = service.upsertCompanyRegisters("", COMPANY_NUMBER, requestBody);
+        ServiceStatus actual = service.upsertCompanyRegisters(COMPANY_NUMBER, requestBody);
 
         // then
         assertEquals(ServiceStatus.SERVER_ERROR, actual);
         verify(repository).findById(COMPANY_NUMBER);
         verify(repository).save(document);
-        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest("", COMPANY_NUMBER, null, false));
+        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest(COMPANY_NUMBER, null, false));
     }
 
     @Test
@@ -241,12 +240,12 @@ class RegistersServiceImplTest {
         when(registersApiService.invokeChsKafkaApi(any())).thenReturn(ServiceStatus.SUCCESS);
 
         // when
-        ServiceStatus actual = service.deleteCompanyRegisters("", COMPANY_NUMBER);
+        ServiceStatus actual = service.deleteCompanyRegisters(COMPANY_NUMBER);
 
         // then
         assertEquals(ServiceStatus.SUCCESS, actual);
         verify(repository).findById(COMPANY_NUMBER);
-        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest("", COMPANY_NUMBER, document.getData(), true));
+        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest(COMPANY_NUMBER, document.getData(), true));
         verify(repository).deleteById(COMPANY_NUMBER);
     }
 
@@ -257,7 +256,7 @@ class RegistersServiceImplTest {
         when(repository.findById(any())).thenReturn(Optional.empty());
 
         // when
-        ServiceStatus actual = service.deleteCompanyRegisters("", COMPANY_NUMBER);
+        ServiceStatus actual = service.deleteCompanyRegisters(COMPANY_NUMBER);
 
         // then
         assertEquals(ServiceStatus.CLIENT_ERROR, actual);
@@ -275,12 +274,12 @@ class RegistersServiceImplTest {
         when(registersApiService.invokeChsKafkaApi(any())).thenReturn(ServiceStatus.SERVER_ERROR);
 
         // when
-        ServiceStatus actual = service.deleteCompanyRegisters("", COMPANY_NUMBER);
+        ServiceStatus actual = service.deleteCompanyRegisters(COMPANY_NUMBER);
 
         // then
         assertEquals(ServiceStatus.SERVER_ERROR, actual);
         verify(repository).findById(COMPANY_NUMBER);
-        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest("", COMPANY_NUMBER, document.getData(), true));
+        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest(COMPANY_NUMBER, document.getData(), true));
         verifyNoMoreInteractions(repository);
     }
 
@@ -293,12 +292,12 @@ class RegistersServiceImplTest {
         when(registersApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
 
         // when
-        ServiceStatus actual = service.deleteCompanyRegisters("", COMPANY_NUMBER);
+        ServiceStatus actual = service.deleteCompanyRegisters(COMPANY_NUMBER);
 
         // then
         assertEquals(ServiceStatus.SERVER_ERROR, actual);
         verify(repository).findById(COMPANY_NUMBER);
-        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest("", COMPANY_NUMBER, document.getData(), true));
+        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest(COMPANY_NUMBER, document.getData(), true));
         verifyNoMoreInteractions(repository);
     }
 
@@ -309,7 +308,7 @@ class RegistersServiceImplTest {
         when(repository.findById(any())).thenThrow(ServiceUnavailableException.class);
 
         // when
-        ServiceStatus actual = service.deleteCompanyRegisters("", COMPANY_NUMBER);
+        ServiceStatus actual = service.deleteCompanyRegisters(COMPANY_NUMBER);
 
         // then
         assertEquals(ServiceStatus.SERVER_ERROR, actual);
@@ -328,12 +327,12 @@ class RegistersServiceImplTest {
         doThrow(ServiceUnavailableException.class).when(repository).deleteById(any());
 
         // when
-        ServiceStatus actual = service.deleteCompanyRegisters("", COMPANY_NUMBER);
+        ServiceStatus actual = service.deleteCompanyRegisters(COMPANY_NUMBER);
 
         // then
         assertEquals(ServiceStatus.SERVER_ERROR, actual);
         verify(repository).findById(COMPANY_NUMBER);
-        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest("", COMPANY_NUMBER, document.getData(), true));
+        verify(registersApiService).invokeChsKafkaApi(new ResourceChangedRequest(COMPANY_NUMBER, document.getData(), true));
         verify(repository).deleteById(COMPANY_NUMBER);
     }
 }
