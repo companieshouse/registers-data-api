@@ -63,12 +63,12 @@ public class RegistersServiceImpl implements RegistersService {
 
                 // save the document before calling resource-changed
                 repository.save(document);
-                LOGGER.info("Company registers updated in MongoDb", DataMapHolder.getLogMap());
+                LOGGER.info("Company registers upserted in MongoDb", DataMapHolder.getLogMap());
 
                 // call resource-changed after saving the document
                 ServiceStatus serviceStatus = registersApiService.invokeChsKafkaApi(
                         new ResourceChangedRequest(companyNumber, null, false));
-                LOGGER.info("ChsKafka api CHANGED invoked", DataMapHolder.getLogMap());
+                LOGGER.info("ChsKafka api CHANGED invoked successfully", DataMapHolder.getLogMap());
                 return serviceStatus;
             } else {
                 LOGGER.error("Record not persisted as it is not the latest record", DataMapHolder.getLogMap());

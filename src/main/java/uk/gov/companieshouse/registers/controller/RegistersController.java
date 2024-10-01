@@ -47,7 +47,7 @@ public class RegistersController {
             @PathVariable("company_number") String companyNumber,
             @RequestBody InternalRegisters requestBody) {
         DataMapHolder.get().companyNumber(companyNumber);
-        LOGGER.info("Processing company registers upsert", DataMapHolder.getLogMap());
+        LOGGER.info("Upserting company registers", DataMapHolder.getLogMap());
 
         ServiceStatus serviceStatus = service.upsertCompanyRegisters(companyNumber, requestBody);
 
