@@ -1,16 +1,17 @@
 package uk.gov.companieshouse.registers.util;
 
-import org.springframework.stereotype.Component;
-import uk.gov.companieshouse.GenerateEtagUtil;
-import uk.gov.companieshouse.api.registers.*;
-import uk.gov.companieshouse.registers.model.CompanyRegistersDocument;
-import uk.gov.companieshouse.registers.model.Updated;
+import static uk.gov.companieshouse.api.registers.CompanyRegister.KindEnum.REGISTERS;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
-
-import static uk.gov.companieshouse.api.registers.CompanyRegister.KindEnum.REGISTERS;
+import org.springframework.stereotype.Component;
+import uk.gov.companieshouse.GenerateEtagUtil;
+import uk.gov.companieshouse.api.registers.CompanyRegister;
+import uk.gov.companieshouse.api.registers.InternalRegisters;
+import uk.gov.companieshouse.api.registers.LinksType;
+import uk.gov.companieshouse.api.registers.Registers;
+import uk.gov.companieshouse.registers.model.CompanyRegistersDocument;
+import uk.gov.companieshouse.registers.model.Updated;
 
 @Component
 public class RegistersMapper {
@@ -18,7 +19,7 @@ public class RegistersMapper {
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSSSSS");
 
     public CompanyRegistersDocument map(String companyNumber, CompanyRegistersDocument existingDocument,
-                                        InternalRegisters requestBody) {
+            InternalRegisters requestBody) {
         return new CompanyRegistersDocument()
                 .setId(companyNumber)
                 .setData(new CompanyRegister()

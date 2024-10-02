@@ -1,20 +1,5 @@
 package uk.gov.companieshouse.registers.util;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.registers.*;
-import uk.gov.companieshouse.registers.model.CompanyRegistersDocument;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -28,6 +13,31 @@ import static uk.gov.companieshouse.api.registers.RegisterListSecretaries.Regist
 import static uk.gov.companieshouse.api.registers.RegisterListUsualResidentialAddress.RegisterTypeEnum.USUAL_RESIDENTIAL_ADDRESS;
 import static uk.gov.companieshouse.api.registers.RegisteredItems.RegisterMovedToEnum.PUBLIC_REGISTER;
 import static uk.gov.companieshouse.api.registers.RegisteredItems.RegisterMovedToEnum.UNSPECIFIED_LOCATION;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.api.registers.CompanyRegister;
+import uk.gov.companieshouse.api.registers.InternalData;
+import uk.gov.companieshouse.api.registers.InternalRegisters;
+import uk.gov.companieshouse.api.registers.LinksType;
+import uk.gov.companieshouse.api.registers.RegisterListDirectors;
+import uk.gov.companieshouse.api.registers.RegisterListLLPMembers;
+import uk.gov.companieshouse.api.registers.RegisterListLLPUsualResidentialAddress;
+import uk.gov.companieshouse.api.registers.RegisterListMembers;
+import uk.gov.companieshouse.api.registers.RegisterListSecretaries;
+import uk.gov.companieshouse.api.registers.RegisterListUsualResidentialAddress;
+import uk.gov.companieshouse.api.registers.RegisteredItems;
+import uk.gov.companieshouse.api.registers.Registers;
+import uk.gov.companieshouse.registers.model.CompanyRegistersDocument;
 
 @ExtendWith(MockitoExtension.class)
 public class RegistersMapperTest {

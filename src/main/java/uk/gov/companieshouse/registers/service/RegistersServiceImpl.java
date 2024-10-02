@@ -1,5 +1,8 @@
 package uk.gov.companieshouse.registers.service;
 
+
+import static uk.gov.companieshouse.registers.RegistersApplication.NAMESPACE;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -8,33 +11,36 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.registers.InternalRegisters;
+import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.logging.LoggerFactory;
 import uk.gov.companieshouse.registers.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.registers.logging.DataMapHolder;
 import uk.gov.companieshouse.registers.model.CompanyRegistersDocument;
 import uk.gov.companieshouse.registers.model.Created;
 import uk.gov.companieshouse.registers.model.ResourceChangedRequest;
 import uk.gov.companieshouse.registers.model.ServiceStatus;
 import uk.gov.companieshouse.registers.util.RegistersMapper;
-import uk.gov.companieshouse.logging.Logger;
 
 @Service
 public class RegistersServiceImpl implements RegistersService {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSSSSS").withZone(ZoneId.of("Z"));
+    private static final Logger LOGGER = LoggerFactory.getLogger(NAMESPACE);
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSSSSS")
+            .withZone(ZoneId.of("Z"));
 
-    private final Logger logger;
     private final RegistersRepository repository;
     private final RegistersMapper mapper;
     private final RegistersApiService registersApiService;
 
-    public RegistersServiceImpl(Logger logger, RegistersRepository repository, RegistersMapper mapper, RegistersApiService registersApiService) {
-        this.logger = logger;
+    public RegistersServiceImpl(RegistersRepository repository, RegistersMapper mapper,
+            RegistersApiService registersApiService) {
         this.repository = repository;
         this.mapper = mapper;
         this.registersApiService = registersApiService;
     }
 
     @Override
-    public ServiceStatus upsertCompanyRegisters(String contextId, String companyNumber, InternalRegisters requestBody) {
+    public ServiceStatus upsertCompanyRegisters(String companyNumber, InternalRegisters requestBody) {
         try {
             Optional<CompanyRegistersDocument> existingDocument = repository.findById(companyNumber);
 
@@ -46,7 +52,8 @@ public class RegistersServiceImpl implements RegistersService {
                     !requestBody.getInternalData().getDeltaAt()
                             .isBefore(ZonedDateTime.parse(existingDocument.get().getDeltaAt(), FORMATTER)
                                     .toOffsetDateTime())) {
-                CompanyRegistersDocument document = mapper.map(companyNumber, existingDocument.orElse(null), requestBody);
+                CompanyRegistersDocument document = mapper.map(companyNumber, existingDocument.orElse(null),
+                        requestBody);
 
                 // If a document already exists and it has a created field, then reuse it
                 // otherwise, set it to the delta's updated_at field
@@ -56,24 +63,22 @@ public class RegistersServiceImpl implements RegistersService {
 
                 // save the document before calling resource-changed
                 repository.save(document);
-                logger.info(String.format("Company registers for company number: %s updated in MongoDb for context id: %s",
-                        companyNumber,
-                        contextId));
+                LOGGER.info("Company registers upserted in MongoDb", DataMapHolder.getLogMap());
 
                 // call resource-changed after saving the document
-                ServiceStatus serviceStatus = registersApiService.invokeChsKafkaApi(new ResourceChangedRequest(contextId, companyNumber, null, false));
-                logger.info(String.format("ChsKafka api CHANGED invoked for context id: %s and company number: %s response status: %s",
-                        contextId, companyNumber, serviceStatus));
+                ServiceStatus serviceStatus = registersApiService.invokeChsKafkaApi(
+                        new ResourceChangedRequest(companyNumber, null, false));
+                LOGGER.info("ChsKafka api CHANGED invoked successfully", DataMapHolder.getLogMap());
                 return serviceStatus;
             } else {
-                logger.info(String.format("Record for company %s not persisted as it is not the latest record.", companyNumber));
+                LOGGER.error("Record not persisted as it is not the latest record", DataMapHolder.getLogMap());
                 return ServiceStatus.CLIENT_ERROR;
             }
         } catch (IllegalArgumentException ex) {
-            logger.error("Illegal argument exception caught when processing upsert", ex);
+            LOGGER.error("Illegal argument exception caught when processing upsert", ex, DataMapHolder.getLogMap());
             return ServiceStatus.SERVER_ERROR;
         } catch (DataAccessException ex) {
-            logger.error("Error connecting to MongoDB");
+            LOGGER.error("Error connecting to MongoDB", ex, DataMapHolder.getLogMap());
             return ServiceStatus.SERVER_ERROR;
         }
     }
@@ -83,34 +88,34 @@ public class RegistersServiceImpl implements RegistersService {
         try {
             return repository.findById(companyNumber);
         } catch (DataAccessException ex) {
-            logger.error("Failed to connect to MongoDb", ex);
+            LOGGER.error("Failed to connect to MongoDb", ex, DataMapHolder.getLogMap());
             throw new ServiceUnavailableException("Data access exception thrown when calling Mongo Repository");
         }
     }
 
     @Override
-    public ServiceStatus deleteCompanyRegisters(String contextId, String companyNumber) {
+    public ServiceStatus deleteCompanyRegisters(String companyNumber) {
         try {
             Optional<CompanyRegistersDocument> document = getCompanyRegisters(companyNumber);
             if (document.isEmpty()) {
-                logger.error(String.format("Company registers do not exist for company number %s", companyNumber));
+                LOGGER.info("Company registers do not exist", DataMapHolder.getLogMap());
                 return ServiceStatus.CLIENT_ERROR;
             }
 
             ServiceStatus serviceStatus = registersApiService.invokeChsKafkaApi(
-                    new ResourceChangedRequest(contextId, companyNumber, document.get().getData(), true));
-            logger.info(String.format("ChsKafka api DELETED invoked successfully for context id: %s and company number: %s", contextId, companyNumber));
+                    new ResourceChangedRequest(companyNumber, document.get().getData(), true));
+            LOGGER.info("ChsKafka api DELETED invoked successfully", DataMapHolder.getLogMap());
 
             if (ServiceStatus.SUCCESS.equals(serviceStatus)) {
                 repository.deleteById(companyNumber);
-                logger.info(String.format("Company registers for company number: %s deleted in MongoDb for context id: %s", companyNumber, contextId));
+                LOGGER.info("Company registers deleted in MongoDb", DataMapHolder.getLogMap());
             }
             return serviceStatus;
         } catch (IllegalArgumentException ex) {
-            logger.error("Error calling chs-kafka-api");
+            LOGGER.error("Error calling chs-kafka-api", ex, DataMapHolder.getLogMap());
             return ServiceStatus.SERVER_ERROR;
         } catch (DataAccessException ex) {
-            logger.error("Error connecting to MongoDB");
+            LOGGER.error("Error connecting to MongoDB", ex, DataMapHolder.getLogMap());
             return ServiceStatus.SERVER_ERROR;
         }
     }

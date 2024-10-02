@@ -1,11 +1,10 @@
 package uk.gov.companieshouse.registers.model;
 
+import java.util.Objects;
+import javax.persistence.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.api.registers.CompanyRegister;
-
-import javax.persistence.Id;
-import java.util.Objects;
 
 @Document(collection = "company_registers")
 public class CompanyRegistersDocument {

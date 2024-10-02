@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,15 +36,12 @@ import uk.gov.companieshouse.api.registers.CompanyRegister;
 import uk.gov.companieshouse.api.registers.InternalData;
 import uk.gov.companieshouse.api.registers.InternalRegisters;
 import uk.gov.companieshouse.api.registers.Registers;
-import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.registers.config.ExceptionHandlerConfig;
 import uk.gov.companieshouse.registers.config.WebSecurityConfig;
 import uk.gov.companieshouse.registers.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.registers.model.CompanyRegistersDocument;
 import uk.gov.companieshouse.registers.model.ServiceStatus;
 import uk.gov.companieshouse.registers.service.RegistersService;
-
-import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = RegistersController.class)
@@ -57,9 +55,6 @@ class RegistersControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @MockBean
-    private Logger logger;
 
     @MockBean
     private RegistersService registersService;
@@ -78,7 +73,7 @@ class RegistersControllerTest {
     @Test
     @DisplayName("Successful upsert request")
     void upsertCompanyRegisters() throws Exception {
-        when(registersService.upsertCompanyRegisters(any(), any(), any())).thenReturn(ServiceStatus.SUCCESS);
+        when(registersService.upsertCompanyRegisters(any(), any())).thenReturn(ServiceStatus.SUCCESS);
 
         mockMvc.perform(put(URI)
                 .contentType(APPLICATION_JSON)
@@ -93,7 +88,7 @@ class RegistersControllerTest {
     @Test
     @DisplayName("Unauthorised oauth2 upsert request")
     void upsertCompanyRegistersUnauthorisedOauth2() throws Exception {
-        when(registersService.upsertCompanyRegisters(any(), any(), any())).thenReturn(ServiceStatus.SUCCESS);
+        when(registersService.upsertCompanyRegisters(any(), any())).thenReturn(ServiceStatus.SUCCESS);
 
         mockMvc.perform(put(URI)
                 .contentType(APPLICATION_JSON)
@@ -107,7 +102,7 @@ class RegistersControllerTest {
     @Test
     @DisplayName("Unauthorised upsert request")
     void upsertCompanyRegistersUnauthorised() throws Exception {
-        when(registersService.upsertCompanyRegisters(any(), any(), any())).thenReturn(ServiceStatus.SUCCESS);
+        when(registersService.upsertCompanyRegisters(any(), any())).thenReturn(ServiceStatus.SUCCESS);
 
         mockMvc.perform(put(URI)
                 .contentType(APPLICATION_JSON)
@@ -121,7 +116,7 @@ class RegistersControllerTest {
     @Test
     @DisplayName("Server error upsert request")
     void upsertCompanyRegistersServerError() throws Exception {
-        when(registersService.upsertCompanyRegisters(any(), any(), any())).thenReturn(ServiceStatus.SERVER_ERROR);
+        when(registersService.upsertCompanyRegisters(any(), any())).thenReturn(ServiceStatus.SERVER_ERROR);
 
         mockMvc.perform(put(URI)
                 .contentType(APPLICATION_JSON)
@@ -136,7 +131,7 @@ class RegistersControllerTest {
     @Test
     @DisplayName("Client error upsert request")
     void upsertCompanyRegistersClientError() throws Exception {
-        when(registersService.upsertCompanyRegisters(any(), any(), any())).thenReturn(ServiceStatus.CLIENT_ERROR);
+        when(registersService.upsertCompanyRegisters(any(), any())).thenReturn(ServiceStatus.CLIENT_ERROR);
 
         mockMvc.perform(put(URI)
                 .contentType(APPLICATION_JSON)
@@ -188,20 +183,6 @@ class RegistersControllerTest {
         assertEquals(data, objectMapper.readValue(result.getResponse().getContentAsString(), CompanyRegister.class));
     }
 
-//    @Test
-//    @DisplayName("Document not found for get company registers request")
-//    void getCompanyRegistersNotFound() throws Exception {
-//        when(registersService.getCompanyRegisters(any())).thenReturn(Optional.empty());
-//
-//        mockMvc.perform(get(URI)
-//                .contentType(APPLICATION_JSON)
-//                .header("x-request-id", "5342342")
-//                .header("ERIC-Identity", "Test-Identity")
-//                .header("ERIC-Identity-Type", "Key")
-//                .header("ERIC-Authorised-Key-Privileges", "internal-app"))
-//                .andExpect(status().isNotFound());
-//    }
-
     @Test
     @DisplayName("MongoDB is unavailable for get company registers request")
     void getCompanyRegistersMongoUnavailable() throws Exception {
@@ -219,7 +200,7 @@ class RegistersControllerTest {
     @Test
     @DisplayName("Successful delete company registers request")
     void deleteCompanyRegisters() throws Exception {
-        when(registersService.deleteCompanyRegisters(any(), any())).thenReturn(ServiceStatus.SUCCESS);
+        when(registersService.deleteCompanyRegisters(any())).thenReturn(ServiceStatus.SUCCESS);
 
         mockMvc.perform(delete(URI)
                 .contentType(APPLICATION_JSON)
@@ -233,7 +214,7 @@ class RegistersControllerTest {
     @Test
     @DisplayName("Server error delete request")
     void deleteCompanyRegistersServerError() throws Exception {
-        when(registersService.deleteCompanyRegisters(any(), any())).thenReturn(ServiceStatus.SERVER_ERROR);
+        when(registersService.deleteCompanyRegisters(any())).thenReturn(ServiceStatus.SERVER_ERROR);
 
         mockMvc.perform(delete(URI)
                 .contentType(APPLICATION_JSON)
@@ -247,7 +228,7 @@ class RegistersControllerTest {
     @Test
     @DisplayName("Not found delete request")
     void deleteCompanyRegistersNotFound() throws Exception {
-        when(registersService.deleteCompanyRegisters(any(), any())).thenReturn(ServiceStatus.CLIENT_ERROR);
+        when(registersService.deleteCompanyRegisters(any())).thenReturn(ServiceStatus.CLIENT_ERROR);
 
         mockMvc.perform(delete(URI)
                 .contentType(APPLICATION_JSON)
