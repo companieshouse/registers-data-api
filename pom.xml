@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>uk.gov.companieshouse</groupId>
 		<artifactId>companies-house-parent</artifactId>
-		<version>2.1.6</version>
+		<version>2.1.11</version>
 	</parent>
 	<artifactId>registers-data-api</artifactId>
 	<version>unversioned</version>
@@ -15,16 +15,15 @@
 		<java.version>21</java.version>
 
 		<maven-build-helper-plugin.version>3.5.0</maven-build-helper-plugin.version>
-		<spring-boot-dependencies.version>3.3.4</spring-boot-dependencies.version>
-		<spring-boot-maven-plugin.version>3.3.4</spring-boot-maven-plugin.version>
+		<spring-boot-dependencies.version>3.3.7</spring-boot-dependencies.version>
+		<spring-boot-maven-plugin.version>3.3.7</spring-boot-maven-plugin.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 
 		<!-- tests -->
-		<maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
-		<jib-maven-plugin.version>3.4.1</jib-maven-plugin.version>
-		<cucumber.version>7.15.0</cucumber.version>
-		<test-containers.version>1.19.7</test-containers.version>
+		<maven-surefire-plugin.version>3.3.0</maven-surefire-plugin.version>
+		<jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
+		<cucumber.version>7.20.0</cucumber.version>
 		<maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
 		<skip.integration.tests>false</skip.integration.tests>
 		<skip.unit.tests>false</skip.unit.tests>
@@ -33,11 +32,11 @@
 		<junit.version>5.10.2</junit.version>
 
 		<!-- internal -->
-		<structured-logging.version>3.0.3</structured-logging.version>
-		<private-api-sdk-java.version>4.0.116</private-api-sdk-java.version>
+		<structured-logging.version>3.0.20</structured-logging.version>
+		<private-api-sdk-java.version>4.0.258</private-api-sdk-java.version>
 		<api-sdk-manager-java-library.version>3.0.5</api-sdk-manager-java-library.version>
 		<api-helper-java-library.version>3.0.1</api-helper-java-library.version>
-        <api-security-java.version>2.0.5</api-security-java.version>
+    <api-security-java.version>2.0.5</api-security-java.version>
 
 	</properties>
 	<dependencyManagement>
@@ -46,13 +45,6 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
 				<version>${spring-boot-dependencies.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-bom</artifactId>
-				<version>${test-containers.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -70,21 +62,17 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-			<dependency>
-				<groupId>org.junit</groupId>
-				<artifactId>junit-bom</artifactId>
-				<version>${junit.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<dependencies>
-		<dependency>
-			<groupId>net.bytebuddy</groupId>
-			<artifactId>byte-buddy</artifactId>
-			<version>1.14.13</version>
-		</dependency>
+    <!--		Transitive deps start here-->
+    <dependency>
+      <groupId>org.xmlunit</groupId>
+      <artifactId>xmlunit-core</artifactId>
+      <version>2.10.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!--		Transitive deps end here-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
