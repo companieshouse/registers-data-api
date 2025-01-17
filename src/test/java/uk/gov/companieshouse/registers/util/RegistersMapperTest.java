@@ -125,7 +125,7 @@ public class RegistersMapperTest {
 
     private Registers getDeltaRegisters() {
         List<RegisteredItems> items = new ArrayList<RegisteredItems>();
-        items.add(new RegisteredItems(DATE, UNSPECIFIED_LOCATION, null));
+        items.add(new RegisteredItems(DATE, UNSPECIFIED_LOCATION));
 
         RegisterListDirectors directors = new RegisterListDirectors(DIRECTORS, items);
 
@@ -134,7 +134,7 @@ public class RegistersMapperTest {
 
     private Registers getExistingRegisters() {
         List<RegisteredItems> items = new ArrayList<RegisteredItems>();
-        items.add(new RegisteredItems(DATE, PUBLIC_REGISTER, null));
+        items.add(new RegisteredItems(DATE, PUBLIC_REGISTER));
 
         RegisterListDirectors directors = new RegisterListDirectors(DIRECTORS, items);
         RegisterListMembers members = new RegisterListMembers(MEMBERS, items);

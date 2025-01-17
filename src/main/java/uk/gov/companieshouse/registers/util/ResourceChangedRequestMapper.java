@@ -23,7 +23,7 @@ public class ResourceChangedRequestMapper {
     private static final Logger LOGGER = LoggerFactory.getLogger(NAMESPACE);
     private static final String SERDES_ERROR_MSG = "Serialisation/deserialisation failed when mapping deleted data";
     private static final DateTimeFormatter PUBLISHED_AT_FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ss").withZone(UTC);
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss").withZone(UTC);
 
     private final Supplier<Instant> timestampGenerator;
     private final ObjectMapper objectMapper;
