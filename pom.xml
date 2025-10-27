@@ -19,6 +19,7 @@
 		<spring.boot.version>3.5.4</spring.boot.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<tomcat-embed-core.version>11.0.11</tomcat-embed-core.version>
 
 		<!-- tests -->
 		<maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
@@ -31,7 +32,7 @@
 
 		<!-- internal -->
 		<structured-logging.version>3.0.24</structured-logging.version>
-		<private-api-sdk-java.version>4.0.258</private-api-sdk-java.version>
+		<private-api-sdk-java.version>4.0.360</private-api-sdk-java.version>
 		<api-sdk-manager-java-library.version>3.0.11</api-sdk-manager-java-library.version>
 		<api-helper-java-library.version>3.0.1</api-helper-java-library.version>
     <api-security-java.version>2.0.8</api-security-java.version>
@@ -123,6 +124,12 @@
 					<artifactId>commons-collections</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<!--CVE-2025-48989(7.5) transitive needing update from parent dependency api-sdk-manager  -->
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-websocket</artifactId>
+			<version>${tomcat-embed-core.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>uk.gov.companieshouse</groupId>
