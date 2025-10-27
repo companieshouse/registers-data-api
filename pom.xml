@@ -185,6 +185,12 @@
 			<artifactId>tomcat-embed-core</artifactId>
 			<version>${tomcat-embed-core.version}</version>
 		</dependency>
+		<dependency>
+			<!--Also for CVE-2025-48989(7.5) -->
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-websocket</artifactId>
+			<version>${tomcat-embed-core.version}</version>
+		</dependency>
 		<!-- CVE-2025-48924(5.3) needing update from parent dependency private-api-sdk -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
