@@ -16,9 +16,11 @@
 		<java.version>21</java.version>
 
 		<maven-build-helper-plugin.version>3.6.0</maven-build-helper-plugin.version>
-		<spring.boot.version>3.4.1</spring.boot.version>
+		<spring.boot.version>3.5.4</spring.boot.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<tomcat-embed-core.version>11.0.11</tomcat-embed-core.version>
+		<commons-lang3.version>3.18.0</commons-lang3.version>
 
 		<!-- tests -->
 		<maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
@@ -31,8 +33,8 @@
 
 		<!-- internal -->
 		<structured-logging.version>3.0.24</structured-logging.version>
-		<private-api-sdk-java.version>4.0.258</private-api-sdk-java.version>
-		<api-sdk-manager-java-library.version>3.0.6</api-sdk-manager-java-library.version>
+		<private-api-sdk-java.version>4.0.360</private-api-sdk-java.version>
+		<api-sdk-manager-java-library.version>3.0.11</api-sdk-manager-java-library.version>
 		<api-helper-java-library.version>3.0.1</api-helper-java-library.version>
     <api-security-java.version>2.0.8</api-security-java.version>
 
@@ -175,6 +177,25 @@
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<!-- transitive dependencies added to resolve vulnerabilities in parent dependencies -->
+		<dependency>
+			<!--CVE-2025-48989(7.5) transitive needing update from parent dependency private-api-sdk  -->
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-core</artifactId>
+			<version>${tomcat-embed-core.version}</version>
+		</dependency>
+		<dependency>
+			<!--Also for CVE-2025-48989(7.5) -->
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-websocket</artifactId>
+			<version>${tomcat-embed-core.version}</version>
+		</dependency>
+		<!-- CVE-2025-48924(5.3) needing update from parent dependency private-api-sdk -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${commons-lang3.version}</version>
 		</dependency>
 	</dependencies>
 
