@@ -16,10 +16,10 @@
 		<java.version>21</java.version>
 
 		<maven-build-helper-plugin.version>3.6.0</maven-build-helper-plugin.version>
-		<spring.boot.version>3.5.4</spring.boot.version>
+		<spring.boot.version>3.5.13</spring.boot.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
-		<tomcat-embed-core.version>11.0.11</tomcat-embed-core.version>
+		<tomcat-embed-core.version>11.0.20</tomcat-embed-core.version>
 		<commons-lang3.version>3.18.0</commons-lang3.version>
 
 		<!-- tests -->
@@ -32,10 +32,10 @@
 		<maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
 
 		<!-- internal -->
-		<structured-logging.version>3.0.24</structured-logging.version>
+		<structured-logging.version>3.0.52</structured-logging.version>
 		<private-api-sdk-java.version>4.0.360</private-api-sdk-java.version>
 		<api-sdk-manager-java-library.version>3.0.11</api-sdk-manager-java-library.version>
-		<api-helper-java-library.version>3.0.1</api-helper-java-library.version>
+		<api-helper-java-library.version>3.0.3</api-helper-java-library.version>
     	<api-security-java.version>2.0.8</api-security-java.version>
 
 		<!--sonar-->
@@ -46,6 +46,10 @@
 		<sonar.password></sonar.password>
 		<sonar.projectKey>uk.gov.companieshouse:registers-data-api</sonar.projectKey>
 		<sonar.projectName>registers-data-api</sonar.projectName>
+		<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml,
+			${project.basedir}/target/site/jacoco-it/jacoco.xml
+		</sonar.coverage.jacoco.xmlReportPaths>
+		<sonar.jacoco.reports>${project.basedir}/target/site</sonar.jacoco.reports>
 
 
 	</properties>
@@ -57,6 +61,31 @@
 				<version>${spring.boot.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<!-- CVE-2025-67030 -->
+			<dependency>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-utils</artifactId>
+				<version>4.0.3</version>
+				<scope>compile</scope>
+			</dependency>
+			<!-- CVE-2026-24733 / CVE-2026-24734 / CVE-2025-66614 -->
+			<dependency>
+				<groupId>org.apache.tomcat.embed</groupId>
+				<artifactId>tomcat-embed-core</artifactId>
+				<version>${tomcat-embed-core.version}</version>
+			</dependency>
+			<!-- CVE-2025-48989(7.5) -->
+			<dependency>
+				<groupId>org.apache.tomcat.embed</groupId>
+				<artifactId>tomcat-embed-websocket</artifactId>
+				<version>${tomcat-embed-core.version}</version>
+			</dependency>
+			<!-- CVE-2025-48924(5.3) -->
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>${commons-lang3.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -189,24 +218,6 @@
 			<scope>test</scope>
 		</dependency>
 		<!-- transitive dependencies added to resolve vulnerabilities in parent dependencies -->
-		<dependency>
-			<!--CVE-2025-48989(7.5) transitive needing update from parent dependency private-api-sdk  -->
-			<groupId>org.apache.tomcat.embed</groupId>
-			<artifactId>tomcat-embed-core</artifactId>
-			<version>${tomcat-embed-core.version}</version>
-		</dependency>
-		<dependency>
-			<!--Also for CVE-2025-48989(7.5) -->
-			<groupId>org.apache.tomcat.embed</groupId>
-			<artifactId>tomcat-embed-websocket</artifactId>
-			<version>${tomcat-embed-core.version}</version>
-		</dependency>
-		<!-- CVE-2025-48924(5.3) needing update from parent dependency private-api-sdk -->
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>${commons-lang3.version}</version>
-		</dependency>
 	</dependencies>
 
 	<build>
