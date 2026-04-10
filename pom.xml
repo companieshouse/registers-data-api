@@ -19,7 +19,7 @@
 		<spring.boot.version>3.5.13</spring.boot.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
-		<tomcat-embed-core.version>11.0.20</tomcat-embed-core.version>
+		<tomcat-embed-core.version>11.0.21</tomcat-embed-core.version>
 		<commons-lang3.version>3.18.0</commons-lang3.version>
 		<log4j.version>2.25.4</log4j.version>
 
