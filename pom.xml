@@ -23,6 +23,7 @@
 		<commons-lang3.version>3.18.0</commons-lang3.version>
 		<log4j.version>2.26.0</log4j.version>
 		<jackson-databind.version>2.22.0</jackson-databind.version>
+		<opentelemetry-semconv.version>1.42.0</opentelemetry-semconv.version>
 
 		<!-- tests -->
 		<maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
@@ -93,17 +94,17 @@
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-api</artifactId>
 				<version>${log4j.version}</version>
-			</dependency>		<!-- CVE-2026-34477(6.3), CVE-2026-34479(6.9) -->
+			</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-to-slf4j</artifactId>
-			<version>2.25.4</version>
+			<version>${log4j.version}</version>
 		</dependency>
 		<!-- CVE-2026-41178(5.3) -->
 		<dependency>
 			<groupId>io.opentelemetry.semconv</groupId>
 			<artifactId>opentelemetry-semconv</artifactId>
-			<version>1.42.0</version>
+			<version>${opentelemetry-semconv.version}</version>
 		</dependency>		
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
