@@ -17,7 +17,7 @@ public class RegistersReadConverter implements Converter<Document, CompanyRegist
     }
 
     /**
-     * Read convertor.
+     * Read converter.
      * @param source source Document.
      * @return CompanyRegister object.
      */
