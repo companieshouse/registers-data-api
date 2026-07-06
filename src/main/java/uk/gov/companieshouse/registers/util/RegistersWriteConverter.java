@@ -1,18 +1,18 @@
 package uk.gov.companieshouse.registers.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.WritingConverter;
-import org.springframework.lang.NonNull;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.companieshouse.api.registers.CompanyRegister;
 
 @WritingConverter
 public class RegistersWriteConverter implements Converter<CompanyRegister, BasicDBObject> {
 
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
 
-    public RegistersWriteConverter(ObjectMapper objectMapper) {
+    public RegistersWriteConverter(JsonMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 

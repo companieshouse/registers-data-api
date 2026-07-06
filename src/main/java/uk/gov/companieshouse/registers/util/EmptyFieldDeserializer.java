@@ -1,18 +1,16 @@
 package uk.gov.companieshouse.registers.util;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
 
-public class EmptyFieldDeserializer  extends JsonDeserializer<String> {
+public class EmptyFieldDeserializer  extends ValueDeserializer<String> {
 
     @Override
-    public String deserialize(JsonParser jsonParser, DeserializationContext context)
-            throws IOException {
+    public String deserialize(JsonParser jsonParser, DeserializationContext context) {
         JsonNode node = jsonParser.readValueAsTree();
-        String str = node.asText();
+        String str = node.asString();
         if (str.isEmpty()) {
             return null;
         }

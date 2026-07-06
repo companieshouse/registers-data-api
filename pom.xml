@@ -1,353 +1,417 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>uk.gov.companieshouse</groupId>
-		<artifactId>companies-house-parent</artifactId>
-		<version>2.1.12</version>
-		<relativePath/>
-	</parent>
-	<artifactId>registers-data-api</artifactId>
-	<version>unversioned</version>
-	<name>registers-data-api</name>
-	<description>Handles CRUD operations for company registers</description>
-	<properties>
-		<java.version>21</java.version>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>uk.gov.companieshouse</groupId>
+        <artifactId>companies-house-parent</artifactId>
+        <version>2.1.14</version>
+        <relativePath/>
+    </parent>
 
-		<maven-build-helper-plugin.version>3.6.0</maven-build-helper-plugin.version>
-		<spring.boot.version>3.5.15</spring.boot.version>
-		<maven.compiler.source>${java.version}</maven.compiler.source>
-		<maven.compiler.target>${java.version}</maven.compiler.target>
-		<tomcat-embed-core.version>11.0.22</tomcat-embed-core.version>
-		<commons-lang3.version>3.18.0</commons-lang3.version>
-		<log4j.version>2.26.0</log4j.version>
-		<jackson-databind.version>2.22.0</jackson-databind.version>
-		<opentelemetry-semconv.version>1.42.0</opentelemetry-semconv.version>
+    <artifactId>registers-data-api</artifactId>
+    <version>unversioned</version>
+    <name>registers-data-api</name>
+    <description>Handles CRUD operations for company registers</description>
 
-		<!-- tests -->
-		<maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
-		<maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>
-		<jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
-		<cucumber.version>7.20.1</cucumber.version>
-		<skip.integration.tests>false</skip.integration.tests>
-		<skip.unit.tests>false</skip.unit.tests>
-		<maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+    <properties>
+        <java.version>21</java.version>
 
-		<!-- internal -->
-		<structured-logging.version>3.0.55</structured-logging.version>
-		<private-api-sdk-java.version>4.0.360</private-api-sdk-java.version>
-		<api-sdk-manager-java-library.version>3.0.14</api-sdk-manager-java-library.version>
-		<api-helper-java-library.version>3.0.3</api-helper-java-library.version>
-    	<api-security-java.version>2.0.8</api-security-java.version>
+        <!-- Plugin Configuration -->
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
+        <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+        <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
+        <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
+        <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-failsafe-plugin -->
+        <maven-failsafe-plugin.version>3.5.6</maven-failsafe-plugin.version>
+        <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-resources-plugin -->
+        <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
+        <!-- Source: https://mvnrepository.com/artifact/org.codehaus.mojo/build-helper-maven-plugin -->
+        <maven-build-helper-plugin.version>3.6.1</maven-build-helper-plugin.version>
+        <!-- Source: https://mvnrepository.com/artifact/com.google.cloud.tools/jib-maven-plugin -->
+        <jib-maven-plugin.version>3.5.1</jib-maven-plugin.version>
 
-		<!--sonar-->
-		<sonar-maven-plugin.version>5.1.0.4751</sonar-maven-plugin.version>
-		<sonar.java.binaries>${project.basedir}/target,${project.basedir}/target/*</sonar.java.binaries>
-		<sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
-		<sonar.login></sonar.login>
-		<sonar.password></sonar.password>
-		<sonar.projectKey>uk.gov.companieshouse:registers-data-api</sonar.projectKey>
-		<sonar.projectName>registers-data-api</sonar.projectName>
-		<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml,
-			${project.basedir}/target/site/jacoco-it/jacoco.xml
-		</sonar.coverage.jacoco.xmlReportPaths>
-		<sonar.jacoco.reports>${project.basedir}/target/site</sonar.jacoco.reports>
+		<!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot -->
+		<spring-boot.version>4.1.0</spring-boot.version>
+		<!-- Source: https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-core -->
+        <tomcat.version>11.0.23</tomcat.version>
+		<!-- Source: https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+        <commons-lang3.version>3.20.0</commons-lang3.version>
+		<!-- Source: https://mvnrepository.com/artifact/io.opentelemetry.instrumentation/opentelemetry-instrumentation-bom -->
+		<opentelemetry.version>2.29.0</opentelemetry.version>
 
-	</properties>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-dependencies</artifactId>
-				<version>${spring.boot.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<!-- CVE-2025-67030 -->
-			<dependency>
-				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-utils</artifactId>
-				<version>4.0.3</version>
-				<scope>compile</scope>
-			</dependency>
-			<!-- CVE-2026-24733 / CVE-2026-24734 / CVE-2025-66614 -->
-			<dependency>
-				<groupId>org.apache.tomcat.embed</groupId>
-				<artifactId>tomcat-embed-core</artifactId>
-				<version>${tomcat-embed-core.version}</version>
-			</dependency>
-			<!-- CVE-2025-48989(7.5) -->
-			<dependency>
-				<groupId>org.apache.tomcat.embed</groupId>
-				<artifactId>tomcat-embed-websocket</artifactId>
-				<version>${tomcat-embed-core.version}</version>
-			</dependency>
-			<!-- CVE-2025-48924(5.3) -->
-			<dependency>
-				<groupId>org.apache.commons</groupId>
-				<artifactId>commons-lang3</artifactId>
-				<version>${commons-lang3.version}</version>
-			</dependency>
-			<!-- CVE-2025-68161(6.3) -->
-			<dependency>
-				<groupId>org.apache.logging.log4j</groupId>
-				<artifactId>log4j-api</artifactId>
-				<version>${log4j.version}</version>
-			</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-to-slf4j</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
-		<!-- CVE-2026-41178(5.3) -->
-		<dependency>
-			<groupId>io.opentelemetry.semconv</groupId>
-			<artifactId>opentelemetry-semconv</artifactId>
-			<version>${opentelemetry-semconv.version}</version>
-		</dependency>		
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>${jackson-databind.version}</version>
-		</dependency>	
-		
-		</dependencies>
-	</dependencyManagement>
-	<dependencies>
-    <!--		Transitive deps start here-->
-    <dependency>
-      <groupId>org.xmlunit</groupId>
-      <artifactId>xmlunit-core</artifactId>
-      <version>2.10.0</version>
-      <scope>test</scope>
-    </dependency>
-    <!--		Transitive deps end here-->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-logging</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-aop</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.junit.jupiter</groupId>
-					<artifactId>junit-jupiter-engine</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-mongodb</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>uk.gov.companieshouse</groupId>
-			<artifactId>structured-logging</artifactId>
-			<version>${structured-logging.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>uk.gov.companieshouse</groupId>
-			<artifactId>private-api-sdk-java</artifactId>
-			<version>${private-api-sdk-java.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>uk.gov.companieshouse</groupId>
-			<artifactId>api-sdk-manager-java-library</artifactId>
-			<version>${api-sdk-manager-java-library.version}</version>
-			<exclusions>
-				<!--excluded to remove vulnerability-->
-				<exclusion>
-					<groupId>commons-collections</groupId>
-					<artifactId>commons-collections</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>uk.gov.companieshouse</groupId>
-			<artifactId>api-helper-java</artifactId>
-			<version>${api-helper-java-library.version}</version>
-		</dependency>
-		<dependency>
-				<groupId>uk.gov.companieshouse</groupId>
-				<artifactId>api-security-java</artifactId>
-				<version>${api-security-java.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.platform</groupId>
-			<artifactId>junit-platform-suite</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.platform</groupId>
-			<artifactId>junit-platform-commons</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>mongodb</artifactId>
-			<exclusions>
-				<!--excluded to remove vulnerability-->
-				<exclusion>
-					<groupId>org.apache.commons</groupId>
-					<artifactId>commons-compress</artifactId>
-				</exclusion>
-			</exclusions>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-params</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<!-- transitive dependencies added to resolve vulnerabilities in parent dependencies -->
-	</dependencies>
+        <!-- tests -->
+		<!-- Source: https://mvnrepository.com/artifact/io.cucumber/cucumber-bom -->
+		<cucumber.version>7.34.4</cucumber.version>
+        <skip.integration.tests>false</skip.integration.tests>
+        <skip.unit.tests>false</skip.unit.tests>
 
-	<build>
-		<plugins>
+        <!-- CH Internal Dependencies       -->
+        <!-- Source: https://github.com/companieshouse/structured-logging/releases -->
+        <structured-logging.version>3.0.57</structured-logging.version>
+        <!-- Source: https://github.com/companieshouse/private-api-sdk-java/releases -->
+        <private-api-sdk-java.version>7.0.2</private-api-sdk-java.version>
+        <!-- Source: https://github.com/companieshouse/api-sdk-manager-java-library/releases -->
+        <api-sdk-manager-java-library.version>3.0.25</api-sdk-manager-java-library.version>
+        <!-- Source: https://github.com/companieshouse/api-helper-java/releases -->
+        <api-helper-java-library.version>3.0.4</api-helper-java-library.version>
+        <!-- Source: https://github.com/companieshouse/api-security-java/releases -->
+        <api-security-java.version>2.0.27</api-security-java.version>
+
+        <!--sonar-->
+        <!-- Source: https://mvnrepository.com/artifact/org.sonarsource.scanner.maven/sonar-maven-plugin -->
+        <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
+        <sonar.java.binaries>${project.basedir}/target,${project.basedir}/target/*</sonar.java.binaries>
+        <!--suppress UnresolvedMavenProperty -->
+        <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
+        <sonar.projectKey>uk.gov.companieshouse:registers-data-api</sonar.projectKey>
+        <sonar.projectName>registers-data-api</sonar.projectName>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml,
+            ${project.basedir}/target/site/jacoco-it/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.jacoco.reports>${project.basedir}/target/site</sonar.jacoco.reports>
+		<jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
+
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom</artifactId>
+                <version>${opentelemetry.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+			<!-- Source: https://mvnrepository.com/artifact/org.codehaus.plexus/plexus-utils -->
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>4.0.3</version>
+                <scope>compile</scope>
+            </dependency>
+
+			<dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-websocket</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+		</dependency>
+
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aspectj</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-opentelemetry</artifactId>
+        </dependency>
+
+        <!-- Source: https://mvnrepository.com/artifact/io.opentelemetry.instrumentation/opentelemetry-logback-appender-1.0 -->
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-logback-appender-1.0</artifactId>
+            <version>${opentelemetry.version}-alpha</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jackson</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-jackson2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter-engine</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>structured-logging</artifactId>
+            <version>${structured-logging.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>private-api-sdk-java</artifactId>
+            <version>${private-api-sdk-java.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>api-sdk-manager-java-library</artifactId>
+            <version>${api-sdk-manager-java-library.version}</version>
+            <exclusions>
+                <!--excluded to remove vulnerability-->
+                <exclusion>
+                    <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>api-helper-java</artifactId>
+            <version>${api-helper-java-library.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>api-security-java</artifactId>
+            <version>${api-security-java.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-commons</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-mongodb</artifactId>
+            <exclusions>
+                <!--excluded to remove vulnerability-->
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-compress</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>${spring.boot.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+            </plugin>
+
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven-surefire-plugin.version}</version>
-			</plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+            </plugin>
+
 			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>${jacoco-maven-plugin.version}</version>
-			</plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${sonar-maven-plugin.version}</version>
+            </plugin>
+
 			<plugin>
-				<groupId>org.sonarsource.scanner.maven</groupId>
-				<artifactId>sonar-maven-plugin</artifactId>
-				<version>${sonar-maven-plugin.version}</version>
-			</plugin>
-			<plugin>
-				<groupId>com.google.cloud.tools</groupId>
-				<artifactId>jib-maven-plugin</artifactId>
-				<version>${jib-maven-plugin.version}</version>
-				<configuration>
-					<from>
-						<image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/ci-corretto-runtime-21:latest</image>
-					</from>
-					<to>
-						<image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/registers-data-api:latest</image>
-					</to>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>${maven-failsafe-plugin.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>integration-test</goal>
-							<goal>verify</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<argLine>-Dfile.encoding=UTF-8</argLine>
-					<argLine>${failsafeArgLine}</argLine>
-					<classesDirectory>${project.build.outputDirectory}</classesDirectory>
-					<skipITs>${skip.integration.tests}</skipITs>
-					<includes>
-						<include>**/uk.gov.companieshouse.registers.Runner.java</include>
-					</includes>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>${maven-resources-plugin.version}</version>
-				<executions>
-					<execution>
-						<id>copy-resources</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${basedir}/target/test-classes</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${basedir}/src/feature/resources</directory>
-									<includes>
-										<include>**/*.*</include>
-									</includes>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>${maven-build-helper-plugin.version}</version>
-				<executions>
-					<execution>
-						<id>add-integration-test-sources</id>
-						<phase>generate-test-sources</phase>
-						<goals>
-							<goal>add-test-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>src/feature/java</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>${jib-maven-plugin.version}</version>
+                <configuration>
+                    <from>
+                        <image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/ci-corretto-runtime-21:latest</image>
+                    </from>
+                    <to>
+                        <image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/registers-data-api:latest</image>
+                    </to>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <argLine>-Dfile.encoding=UTF-8</argLine>
+                    <argLine>${failsafeArgLine}</argLine>
+                    <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+                    <skipITs>${skip.integration.tests}</skipITs>
+                    <includes>
+                        <include>**/uk.gov.companieshouse.registers.Runner.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/test-classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/feature/resources</directory>
+                                    <includes>
+                                        <include>**/*.*</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${maven-build-helper-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>add-integration-test-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/feature/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
 
 </project>

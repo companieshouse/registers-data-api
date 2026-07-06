@@ -5,7 +5,6 @@ import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 import static uk.gov.companieshouse.logging.util.LogContextProperties.REQUEST_ID;
 import static uk.gov.companieshouse.registers.RegistersApplication.NAMESPACE;
 
-import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +13,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -30,9 +31,9 @@ public class RequestLoggingFilter extends OncePerRequestFilter implements Reques
     private static final Logger LOGGER = LoggerFactory.getLogger(NAMESPACE);
 
     @Override
-    protected void doFilterInternal(@Nonnull HttpServletRequest request,
-            @Nonnull HttpServletResponse response,
-            @Nonnull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
         logStartRequestProcessing(request, LOGGER);
         DataMapHolder.initialise(Optional
                 .ofNullable(request.getHeader(REQUEST_ID.value()))

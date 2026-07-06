@@ -4,6 +4,7 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -21,25 +22,25 @@ public class MongoRegistersConfig extends AbstractMongoClientConfiguration {
     @Value("${spring.data.mongodb.name}")
     private String databaseName;
 
-    @Value("${spring.data.mongodb.uri}")
+    @Value("${spring.mongodb.uri}")
     private String databaseUri;
 
     @Bean
-    MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
+    public @NonNull MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
         return new MongoTransactionManager(dbFactory);
     }
 
     @Override
-    protected String getDatabaseName() {
+    protected @NonNull String getDatabaseName() {
         return this.databaseName;
     }
 
-    protected String getDatabaseUri() {
+    protected @NonNull String getDatabaseUri() {
         return this.databaseUri;
     }
 
     @Override
-    public MongoClient mongoClient() {
+    public @NonNull MongoClient mongoClient() {
         final ConnectionString connectionString =
                 new ConnectionString(getDatabaseUri());
         final MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
