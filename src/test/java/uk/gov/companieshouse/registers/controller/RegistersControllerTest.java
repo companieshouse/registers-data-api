@@ -13,25 +13,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.companieshouse.api.registers.CompanyRegister;
 import uk.gov.companieshouse.api.registers.InternalData;
 import uk.gov.companieshouse.api.registers.InternalRegisters;
@@ -54,21 +51,14 @@ class RegistersControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonMapper jsonMapper;
 
-    @MockBean
+    @MockitoBean
     private RegistersService registersService;
 
     private final Gson gson = new GsonBuilder().setPrettyPrinting()
             .excludeFieldsWithoutExposeAnnotation()
             .create();
-
-    @BeforeEach
-    void setUp() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-    }
 
     @Test
     @DisplayName("Successful upsert request")
@@ -160,7 +150,7 @@ class RegistersControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        assertEquals(data, objectMapper.readValue(result.getResponse().getContentAsString(), CompanyRegister.class));
+        assertEquals(data, jsonMapper.readValue(result.getResponse().getContentAsString(), CompanyRegister.class));
     }
 
     @Test
@@ -180,7 +170,7 @@ class RegistersControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        assertEquals(data, objectMapper.readValue(result.getResponse().getContentAsString(), CompanyRegister.class));
+        assertEquals(data, jsonMapper.readValue(result.getResponse().getContentAsString(), CompanyRegister.class));
     }
 
     @Test

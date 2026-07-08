@@ -1,30 +1,30 @@
 package uk.gov.companieshouse.registers.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.Document;
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;
-import org.springframework.lang.NonNull;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.companieshouse.api.registers.CompanyRegister;
 
 @ReadingConverter
 public class RegistersReadConverter implements Converter<Document, CompanyRegister> {
 
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
-    public RegistersReadConverter(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    public RegistersReadConverter(JsonMapper jsonMapper) {
+        this.jsonMapper = jsonMapper;
     }
 
     /**
-     * Write convertor.
+     * Read converter.
      * @param source source Document.
-     * @return charge BSON object.
+     * @return CompanyRegister object.
      */
     @Override
     public CompanyRegister convert(@NonNull Document source) {
         try {
-            return objectMapper.readValue(source.toJson(), CompanyRegister.class);
+            return jsonMapper.readValue(source.toJson(), CompanyRegister.class);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

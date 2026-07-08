@@ -4,11 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,6 +16,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.api.chskafka.ChangedResourceEvent;
 import uk.gov.companieshouse.api.registers.CompanyRegister;
@@ -33,7 +35,7 @@ class ResourceChangedRequestMapperTest {
     private Supplier<Instant> timestampGenerator;
 
     @Mock
-    private ObjectMapper objectMapper;
+    private JsonMapper jsonMapper;
 
     @InjectMocks
     private ResourceChangedRequestMapper mapper;
@@ -45,12 +47,12 @@ class ResourceChangedRequestMapperTest {
 
     @ParameterizedTest
     @MethodSource("resourceChangedScenarios")
-    void testMapper(ResourceChangedTestArgument argument) throws JsonProcessingException {
+    void testMapper(ResourceChangedTestArgument argument) throws JacksonException {
         // given
         when(timestampGenerator.get()).thenReturn(DATE);
         if (argument.request().isDelete() != null && argument.request().isDelete()) {
-            when(objectMapper.writeValueAsString(any())).thenReturn("{mapped_deleted_data_mock}");
-            when(objectMapper.readValue("{mapped_deleted_data_mock}", Object.class)).thenReturn(argument.request().registersData());
+            when(jsonMapper.writeValueAsString(any())).thenReturn("{mapped_deleted_data_mock}");
+            when(jsonMapper.readValue("{mapped_deleted_data_mock}", Object.class)).thenReturn(argument.request().registersData());
         }
 
         // when
@@ -97,7 +99,7 @@ class ResourceChangedRequestMapperTest {
             }
 
             @Override
-            public String toString() {
+            public @NonNull String toString() {
                 return this.request.toString();
             }
         }

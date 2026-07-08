@@ -3,12 +3,14 @@ package uk.gov.companieshouse.registers.util;
 import static java.time.ZoneOffset.UTC;
 import static uk.gov.companieshouse.registers.RegistersApplication.NAMESPACE;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Supplier;
+
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.api.chskafka.ChangedResourceEvent;
 import uk.gov.companieshouse.logging.Logger;
@@ -26,11 +28,11 @@ public class ResourceChangedRequestMapper {
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss").withZone(UTC);
 
     private final Supplier<Instant> timestampGenerator;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
-    public ResourceChangedRequestMapper(Supplier<Instant> timestampGenerator, ObjectMapper objectMapper) {
+    public ResourceChangedRequestMapper(Supplier<Instant> timestampGenerator, JsonMapper jsonMapper) {
         this.timestampGenerator = timestampGenerator;
-        this.objectMapper = objectMapper;
+        this.jsonMapper = jsonMapper;
     }
 
     public ChangedResource mapChangedResource(ResourceChangedRequest request) {
@@ -42,13 +44,13 @@ public class ResourceChangedRequestMapper {
                 .event(event)
                 .contextId(DataMapHolder.getRequestId());
 
-        if (request.isDelete() != null && Boolean.TRUE.equals(request.isDelete())) {
+        if (BooleanUtils.isTrue(request.isDelete())) {
             event.setType("deleted");
             try {
                 final String serialisedDeletedData =
-                        objectMapper.writeValueAsString(request.registersData());
-                changedResource.setDeletedData(objectMapper.readValue(serialisedDeletedData, Object.class));
-            } catch (JsonProcessingException ex) {
+                        jsonMapper.writeValueAsString(request.registersData());
+                changedResource.setDeletedData(jsonMapper.readValue(serialisedDeletedData, Object.class));
+            } catch (JacksonException ex) {
                 LOGGER.error(SERDES_ERROR_MSG, ex, DataMapHolder.getLogMap());
                 throw new InternalServerErrorException(SERDES_ERROR_MSG);
             }
