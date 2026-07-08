@@ -51,7 +51,6 @@ public class Config {
 
         return JsonMapper.builder()
                 .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd"))
-                .enable(DateTimeFeature.WRITE_DATES_WITH_ZONE_ID)
                 .disable(tools.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .disable(tools.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)

@@ -6,6 +6,8 @@ import static uk.gov.companieshouse.registers.RegistersApplication.NAMESPACE;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Supplier;
+
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
@@ -42,7 +44,7 @@ public class ResourceChangedRequestMapper {
                 .event(event)
                 .contextId(DataMapHolder.getRequestId());
 
-        if (request.isDelete() != null && request.isDelete()) {
+        if (BooleanUtils.isTrue(request.isDelete())) {
             event.setType("deleted");
             try {
                 final String serialisedDeletedData =
