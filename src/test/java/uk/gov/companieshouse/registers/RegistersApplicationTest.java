@@ -1,13 +1,11 @@
 package uk.gov.companieshouse.registers;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -22,16 +20,16 @@ class RegistersApplicationTest {
     private MockMvc mockMvc;
 
     @Test
-    void shouldStartApplication() {
-        Executable executable = () -> RegistersApplication.main(new String[0]);
-        assertDoesNotThrow(executable);
-    }
-
-    @Test
     void shouldReturn200FromGetHealthEndpoint() throws Exception {
-        this.mockMvc.perform(get("/healthcheck"))
+        this.mockMvc.perform(get("/registers-data-api/healthcheck"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string("{\"groups\":[\"liveness\",\"readiness\"],\"status\":\"UP\"}"));
+    }
+
+    @Test
+    void shouldRequireAuthenticationForRegistersEndpoint() throws Exception {
+        this.mockMvc.perform(get("/company/12345678/registers"))
+                .andExpect(status().isUnauthorized());
     }
 }

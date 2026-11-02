@@ -43,7 +43,7 @@ public class WebSecurityConfig {
      */
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().requestMatchers("/healthcheck");
+        return web -> web.ignoring().requestMatchers("/registers-data-api/healthcheck");
     }
 
     /**
